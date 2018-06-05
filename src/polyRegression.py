@@ -28,6 +28,9 @@ def load_data(filepath):
 
 # Feature scaling
 def norm_features(X):
+    """ Normalize features and return X_norm: (X - mu)/sigma, where mu and 
+        sigma are the mean and standard deviation of each column of X. 
+        Also adds a column of 1's (intercept) to X"""
     
     mu = np.mean(X, axis=0)
     sigma = np.std(X, axis=0)
@@ -41,7 +44,9 @@ def norm_features(X):
 
 # Polynomial feature mapping
 def poly_features(X, p):
-    
+    """ A function that takes in a vector X and returns a matrix X_poly
+        with each column being X raised to powers ranging from 1 through p. """
+        
     # Define a new array to store poly features
     X_poly = np.zeros((X.shape[0], p))
     
@@ -53,7 +58,8 @@ def poly_features(X, p):
 
 # Compute cost and gradient
 def compute_cost(X, y, theta, Lambda):
-    
+    """ Compute regularized (if Lambda > 0) cost (J) and gradient. """
+        
     # Calculate m
     m = y.shape[0]
     
@@ -69,6 +75,8 @@ def compute_cost(X, y, theta, Lambda):
 
 # Gradient descent to learn theta
 def grad_descent(X, y, theta, alpha, Lambda, num_iters):
+    """ This function implements Gradient Descent to train the model and 
+        returns the tuned theta vector. """
     
     # Calculate m
     m = y.shape[0]
@@ -92,6 +100,8 @@ def grad_descent(X, y, theta, alpha, Lambda, num_iters):
     return (theta, J_hist)
 
 def train_cv_test_split(X, y, cv_ratio=0.2, test_ratio=0.2):
+    """ This function splits the dataset into cross-validation, test, 
+        and train sets. Default split is 20%-20%-60%. """
     
     # Randomly shuffle array indices before splitting data
     rand_indices = np.random.permutation(len(X))
@@ -118,11 +128,51 @@ def train_cv_test_split(X, y, cv_ratio=0.2, test_ratio=0.2):
     # Return split datasets
     return (X_cv, y_cv, X_test, y_test, X_train, y_train)
 
+def learning_curve(X_train, y_train, X_cv, y_cv, Lambda):
+    """ This function plots the learning curve (train and validation errors
+        vs. number of examples) to give an idea on bias-variance characteristics. """
+    
+    # Calculate m
+    m = len(y_train)
+    
+    # Initialize error_train and error_cv vectors
+    error_train = np.zeros((m, 1))
+    error_cv = np.zeros((m, 1))
+    
+    # Start loop
+    for i in range(m):
+        
+        # Calculate theta vector for this iteration
+        theta_init = np.ones((X_train.shape[1], 1))
+        theta, dummy_var = grad_descent(X_train[:i,:], y_train[:i], \
+                                        theta_init, 0.1, Lambda, 500)
+        
+        # Calculate errors (set Lambda = 0 for these)
+        error_train[i], dummy_var = compute_cost(X[:i,:], y[:i], \
+                           theta, 0)
+        error_cv[i], dummy_val = compute_cost(X_cv, y_cv, \
+                           theta, 0)
+        
+    # Plot errors
+    plt.figure(figsize=(7,7))
+    plt.title("Learning curve for linear regression")
+    plt.xlabel("Number of training examples")
+    plt.ylabel("Error")
+    
+    plt.plot(range(m), error_train, 'b-', linewidth=2, label="Train")
+    plt.plot(range(m), error_train, 'r-', linewidth=2, label="Cross Validation")
+    
+    plt.legend()
+    plt.show()
+    
+    # Return error arrays
+    return (error_train, error_cv)
+
 # Model training    
 
 # Define constants and initial theta vector
 filepath = "./input/input03.txt"
-Lambda = 1
+Lambda = 0
 alpha = 0.1
 num_iters = 1000
 
@@ -144,7 +194,6 @@ plt.ylabel("Cost, J")
 
 plt.plot(range(1,num_iters+1), J_hist, 'b-', linewidth=2)
 
-# Show plot
 plt.show()
 
 # Predictions
