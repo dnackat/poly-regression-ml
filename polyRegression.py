@@ -17,7 +17,7 @@ def load_data(filepath):
     dataset = np.loadtxt(filepath, dtype=float)
     
     # Define X, y, and m
-    n_features = 2
+    n_features = (dataset.shape[1] - 1) # Assuming the last column is 'y'
     
     X = dataset[:, 0:n_features]
     y = dataset[:,dataset.shape[1] - 1].reshape(X.shape[0],1)
@@ -32,7 +32,7 @@ def norm_features(X):
     mu = np.mean(X, axis=0)
     sigma = np.std(X, axis=0)
     
-    X_norm = (X - mu) / sigma
+    X_norm = (X - mu)/sigma
     
     # Add intercept term to X 
     X_norm = np.concatenate((np.ones((X_norm.shape[0], 1)), X_norm), axis=1)
@@ -91,20 +91,49 @@ def grad_descent(X, y, theta, alpha, Lambda, num_iters):
     # Return theta and J_hist
     return (theta, J_hist)
 
+def train_cv_test_split(X, y, cv_ratio=0.2, test_ratio=0.2):
+    
+    # Randomly shuffle array indices before splitting data
+    rand_indices = np.random.permutation(len(X))
+    
+    # Calculate CV and test set sizes
+    cv_set_size = int(len(X) * cv_ratio)
+    test_set_size = int(len(X) * test_ratio)
+    
+    # Get CV and test indices
+    cv_indices = rand_indices[:cv_set_size]
+    test_indices = rand_indices[cv_set_size:(cv_set_size + test_set_size)]
+    train_indices = rand_indices[(cv_set_size + test_set_size):]
+    
+    # Split the dataset
+    X_cv = X[cv_indices,:]
+    y_cv = y[cv_indices,:]
+    
+    X_test = X[test_indices,:]
+    y_test = y[test_indices,:]
+    
+    X_train = X[train_indices,:]
+    y_train = y[train_indices,:]
+    
+    # Return split datasets
+    return (X_cv, y_cv, X_test, y_test, X_train, y_train)
+
 # Model training    
+
+# Define constants and initial theta vector
 filepath = "./input/input03.txt"
+Lambda = 1
+alpha = 0.1
+num_iters = 1000
+
+# Get X, y, and m from dataset
 X, y, m = load_data(filepath)
 
 # Normalize X to get mu = 0 and sigma = 1
 X_norm, mu, sigma = norm_features(X)
 
-# Define constants and initial theta vector
-Lambda = 1
-alpha = 0.1
-num_iters = 1000
-theta_init = np.zeros((X_norm.shape[1], 1))
-
 # Learn theta using GD
+theta_init = np.zeros((X_norm.shape[1], 1))
 theta, J_hist = grad_descent(X_norm, y, theta_init, alpha, Lambda, num_iters)
 
 # J_history plot
@@ -119,7 +148,7 @@ plt.plot(range(1,num_iters+1), J_hist, 'b-', linewidth=2)
 plt.show()
 
 # Predictions
-X_pred = np.array([[0.05,0.54],[0.91,0.91],[0.31,0.76],[0.51,0.31]])
+X_pred = np.array([[0.05, 0.54],[0.91, 0.91],[0.31, 0.76],[0.51, 0.31]])
 X_pred = (X_pred - mu) / sigma
 X_pred = np.concatenate((np.ones((X_pred.shape[0],1)), X_pred), axis=1)
 predictions = X_pred.dot(theta)
