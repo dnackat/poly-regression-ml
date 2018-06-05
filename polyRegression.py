@@ -113,7 +113,6 @@ plt.title("Cost vs. iteration")
 plt.xlabel("GD Iteration")
 plt.ylabel("Cost, J")
 
-# Plot J_hist
 plt.plot(range(1,num_iters+1), J_hist, 'b-', linewidth=2)
 
 # Show plot
