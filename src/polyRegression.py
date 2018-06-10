@@ -50,20 +50,28 @@ def norm_features(X):
     # Add intercept term to X 
     X_norm = np.concatenate((np.ones((X_norm.shape[0], 1)), X_norm), axis=1)
     
-    return (X_norm, mu, sigma)
+    return X_norm
 
 # Polynomial feature mapping
 def poly_features(X, p):
-    """ This function that takes in a vector X and returns a matrix X_poly
-        with each column being X raised to powers ranging from 1 through p. """
-        
+    """ This function takes in X and returns a matrix X_poly
+        with each column being a column of X raised to powers ranging from 
+        1 through p. """
+    
+    # Get m and n
+    m = X.shape[0]
+    n = X.shape[1]
+    
     # Define a new array to store poly features
-    X_poly = np.zeros((X.shape[0], p))
+    X_poly = np.zeros((m, n * p))
     
     # Each column of X_poly is X raised to a power
-    for i in range(p):
-        X_poly[:, i] = X**(i + 1)
-        
+    index = 0
+    for i in range(X.shape[1]):
+        for j in range(p):
+            X_poly[:, index] = X[:, i]**(j + 1)
+            index += 1
+    
     return X_poly
 
 # Compute cost and gradient
@@ -181,7 +189,7 @@ def learning_curve(X_train, y_train, X_cv, y_cv, Lambda):
     return (error_train, error_cv)
 
 # Plot data along with model fit
-def plot_data_model(X, y, theta):
+def plot_data_model(X, X_poly, y, theta):
     """ This function plots the model fit along with the data set (X vs. y). """
     
     plt.figure(figsize=(7,7))
@@ -193,11 +201,11 @@ def plot_data_model(X, y, theta):
     plt.plot(X[:,1], y, 'ro', markersize=5, label="x2")
     
     # Sort X in order to do a lineplot of model fit
-    #X_plot = np.concatenate((np.ones((X.shape[0],1)), X), axis=1)
-    #[x_p, y_p] = zip(*sorted(zip(X[:,0], X_plot.dot(theta)), \
-    #key=lambda x_p: x_p[0]))
+    X_normalized = norm_features(X_poly)
+    [x_p, y_p] = zip(*sorted(zip(X[:,0], X_normalized.dot(theta)), \
+    key=lambda x_p: x_p[0]))
     
-    #plt.plot(x_p, y_p, 'k-', linewidth=2, label="Model fit")
+    plt.plot(x_p, y_p, 'k--', linewidth=1, label="Model fit")
     
     plt.legend()
     plt.show()
@@ -209,14 +217,17 @@ def plot_data_model(X, y, theta):
 # Define constants and initial theta vector
 filepath = "/home/dileepn/Documents/Python/ML/polyRegression/input/input03.txt"
 Lambda = 1
-alpha = 0.1
-num_iters = 1000
+alpha = 0.125
+num_iters = 3500
 
 # Get X, y, and m from dataset
 X, y, m = load_data(filepath)
 
+# Get polynomial features
+X_poly = poly_features(X, 3)
+
 # Normalize X to get mu = 0 and sigma = 1
-X_norm, mu, sigma = norm_features(X)
+X_norm = norm_features(X_poly)
 
 # Learn theta using GD
 theta_init = np.zeros((X_norm.shape[1], 1))
@@ -233,13 +244,13 @@ plt.plot(range(1,num_iters+1), J_hist, 'b-', linewidth=2)
 plt.show()
 
 # Plot fit
-plot_data_model(X, y, theta)
+plot_data_model(X, X_poly, y, theta)
 
 # Predictions
 X_pred = np.array([[0.05, 0.54],[0.91, 0.91],[0.31, 0.76],[0.51, 0.31]])
-X_pred = (X_pred - mu) / sigma
-X_pred = np.concatenate((np.ones((X_pred.shape[0],1)), X_pred), axis=1)
-predictions = X_pred.dot(theta)
+X_pred_poly = poly_features(X_pred, 3)
+X_pred_norm = norm_features(X_pred_poly) 
+predictions = X_pred_norm.dot(theta)
 print(predictions)
 
 
