@@ -58,19 +58,22 @@ def poly_features(X, p):
         with each column being a column of X raised to powers ranging from 
         1 through p. """
     
-    # Get m and n
+    # Get m 
     m = X.shape[0]
-    n = X.shape[1]
     
     # Define a new array to store poly features
-    X_poly = np.zeros((m, n * p))
+    X_poly = np.zeros((m, (p**2 + 1)))
     
     # Each column of X_poly is X raised to a power
     index = 0
-    for i in range(X.shape[1]):
-        for j in range(p):
-            X_poly[:, index] = X[:, i]**(j + 1)
-            index += 1
+    for j in range(p + 1):
+        for i in range(p + 1):
+            if (i + j) <= p:
+                X_poly[:, index] = (X[:, 0]**i) * (X[:, 1]**j)
+                index += 1
+    
+    # Remove the first column with 1's before normalization
+    X_poly = X_poly[:,1:]
     
     return X_poly
 
@@ -189,7 +192,7 @@ def learning_curve(X_train, y_train, X_cv, y_cv, Lambda):
     return (error_train, error_cv)
 
 # Plot data along with model fit
-def plot_data_model(X, X_poly, y, theta):
+def plot_data_model(X, X_norm, y, theta):
     """ This function plots the model fit along with the data set (X vs. y). """
     
     plt.figure(figsize=(7,7))
@@ -201,8 +204,7 @@ def plot_data_model(X, X_poly, y, theta):
     plt.plot(X[:,1], y, 'ro', markersize=5, label="x2")
     
     # Sort X in order to do a lineplot of model fit
-    X_normalized = norm_features(X_poly)
-    [x_p, y_p] = zip(*sorted(zip(X[:,0], X_normalized.dot(theta)), \
+    [x_p, y_p] = zip(*sorted(zip(X[:,0], X_norm.dot(theta)), \
     key=lambda x_p: x_p[0]))
     
     plt.plot(x_p, y_p, 'k--', linewidth=1, label="Model fit")
@@ -216,7 +218,7 @@ def plot_data_model(X, X_poly, y, theta):
 
 # Define constants and initial theta vector
 filepath = "/home/dileepn/Documents/Python/ML/polyRegression/input/input03.txt"
-Lambda = 1
+Lambda = 0
 alpha = 0.125
 num_iters = 3500
 
@@ -230,7 +232,7 @@ X_poly = poly_features(X, 3)
 X_norm = norm_features(X_poly)
 
 # Learn theta using GD
-theta_init = np.zeros((X_norm.shape[1], 1))
+theta_init = np.random.randint(50, size=(X_norm.shape[1], 1))
 theta, J_hist = grad_descent(X_norm, y, theta_init, alpha, Lambda, num_iters)
 
 # J_history plot
@@ -244,7 +246,7 @@ plt.plot(range(1,num_iters+1), J_hist, 'b-', linewidth=2)
 plt.show()
 
 # Plot fit
-plot_data_model(X, X_poly, y, theta)
+plot_data_model(X, X_norm, y, theta)
 
 # Predictions
 X_pred = np.array([[0.05, 0.54],[0.91, 0.91],[0.31, 0.76],[0.51, 0.31]])
@@ -252,11 +254,3 @@ X_pred_poly = poly_features(X_pred, 3)
 X_pred_norm = norm_features(X_pred_poly) 
 predictions = X_pred_norm.dot(theta)
 print(predictions)
-
-
-    
-    
-
-
-
-
