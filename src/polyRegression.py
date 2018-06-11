@@ -11,9 +11,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Open the dataset and define X, y, and m
-def load_data(filepath):
-    """ This function loads a space-separated text (*.txt) file using numpy
-        and returns X and y as numpy arrays. Sample input (last column is y): 
+def load_data():
+    """ This function loads: 
+        1. Space-separated text (*.txt) file using numpy
+        and returns X and y as numpy arrays. Sample input (last column is y):
+            2 100
             0.44 0.68 511.14
             0.99 0.23 717.1
             0.84 0.29 607.91
@@ -21,20 +23,78 @@ def load_data(filepath):
             0.07 0.83 289.88
                     .
                     .
-                    ."""
+                    .
+            4
+            0.05 0.54
+            0.91 0.91
+            0.31 0.76
+            0.51 0.31
+            
+                    OR
+        
+        2. Data entered manually (space-separated) on the standard input 
+        and stores them in X and y. """
+        
+    input_type = input("Choose dataset input type. 1 (file) or 2 (manual entry): ")
     
-    # Open dataset with numpy to directly store it as a numpy array
-    dataset = np.loadtxt(filepath, dtype=float)
+    if input_type == "1":
+        
+        # Prompt for filepath
+        filepath = input("Enter the complete filepath (/home/user...): ")
+        
+        # Read the dataset line-by-line. Get num. of features, F, and 
+        # num. of examples, N
+        
+        # Temporary list to store data as it is being read
+        temp_data = []
+        temp_test_data = []
+        
+        input_file = open(filepath, "r")
+        
+        for line_num, line in enumerate(input_file):
+            if line_num == 0:
+                F, N = line.split()
+                F, N = int(F), int(N)
+            elif line_num == N + 1:
+                T = int(line)
+            elif line_num > 0 and line_num <= N:
+                x1, x2, y = line.split()
+                temp_data += [(float(x1), float(x2), float(y))]
+            elif line_num > N + 1 and line_num <= N + T + 1:
+                x1, x2 = line.split()
+                temp_test_data += [(float(x1), float(x2))]
+                
+        # Close file
+        input_file.close()
+                
+        # Convert temp lists into numpy arrays
+        dataset = np.array(temp_data)
+        X_pred = np.array(temp_test_data)       
+        
+        # Define X, y, and m
+        X = dataset[:, :F]
+        y = dataset[:, F].reshape(X.shape[0], 1)
+        
+        m = dataset.shape[0]
+        
+    elif input_type == "2":
+        
+        # First line has number of features and number of training examples
+        F, N = map(int, input().split())
+        
+        # Get the training set (X and y)
+        train = np.array([input().split() for _ in range(N)], float)
+        
+        # Number of test examples
+        T = int(input())
+        X_pred = np.array([input().split() for _ in range(T)], float)
+        
+        # Split the training set into X and y
+        X = train[:,:F]
+        y = train[:,F]
+        m = len(y)
     
-    # Define X, y, and m
-    n_features = (dataset.shape[1] - 1) # Assuming the last column is 'y'
-    
-    X = dataset[:, 0:n_features]
-    y = dataset[:, dataset.shape[1] - 1].reshape(X.shape[0],1)
-    
-    m = dataset.shape[0]
-    
-    return (X, y, m)
+    return (X, y, m, X_pred)
 
 # Feature scaling
 def norm_features(X):
@@ -171,7 +231,7 @@ def learning_curve(X_train, y_train, X_cv, y_cv, Lambda):
                                         theta_init, 0.1, Lambda, 500)
         
         # Calculate errors (set Lambda = 0 for these)
-        error_train[i], dummy_var = compute_cost(X[:i,:], y[:i], \
+        error_train[i], dummy_var = compute_cost(X_train[:i,:], y_train[:i], \
                            theta, 0)
         error_cv[i], dummy_val = compute_cost(X_cv, y_cv, \
                            theta, 0)
@@ -213,44 +273,3 @@ def plot_data_model(X, X_norm, y, theta):
     plt.show()
     
     return
-
-# Model training    
-
-# Define constants and initial theta vector
-filepath = "/home/dileepn/Documents/Python/ML/polyRegression/input/input03.txt"
-Lambda = 0
-alpha = 0.125
-num_iters = 3500
-
-# Get X, y, and m from dataset
-X, y, m = load_data(filepath)
-
-# Get polynomial features
-X_poly = poly_features(X, 3)
-
-# Normalize X to get mu = 0 and sigma = 1
-X_norm = norm_features(X_poly)
-
-# Learn theta using GD
-theta_init = np.random.randint(50, size=(X_norm.shape[1], 1))
-theta, J_hist = grad_descent(X_norm, y, theta_init, alpha, Lambda, num_iters)
-
-# J_history plot
-plt.figure(figsize=(7,7))
-plt.title("Cost vs. iteration")
-plt.xlabel("GD Iteration")
-plt.ylabel("Cost, J")
-
-plt.plot(range(1,num_iters+1), J_hist, 'b-', linewidth=2)
-
-plt.show()
-
-# Plot fit
-plot_data_model(X, X_norm, y, theta)
-
-# Predictions
-X_pred = np.array([[0.05, 0.54],[0.91, 0.91],[0.31, 0.76],[0.51, 0.31]])
-X_pred_poly = poly_features(X_pred, 3)
-X_pred_norm = norm_features(X_pred_poly) 
-predictions = X_pred_norm.dot(theta)
-print(predictions)
