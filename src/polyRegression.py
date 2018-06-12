@@ -145,6 +145,9 @@ def poly_features(X, p):
                 X_poly[:, index] = (X[:, 0]**i) * (X[:, 1]**j)
                 index += 1
     
+    # Remove columns with 0's, if any
+    X_poly = X_poly[:, ~np.all(X_poly == 0, axis=0)]
+    
     # Remove the first column with 1's before normalization
     X_poly = X_poly[:,1:]
     
