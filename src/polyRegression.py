@@ -130,7 +130,12 @@ def poly_features(X, p):
     m = X.shape[0]
     
     # Define a new array to store poly features
-    X_poly = np.zeros((m, (p**2 + 1)))
+    if p == 0 or p == 1:
+        y_index = 2**p + p
+    else:
+        y_index = 2**p + 2
+        
+    X_poly = np.zeros((m, y_index))
     
     # Each column of X_poly is X raised to a power
     index = 0
