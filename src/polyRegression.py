@@ -47,31 +47,27 @@ def load_data():
             # Prompt for filepath
             filepath = input("Enter the complete filepath (/home/user...): ")
             
-            # Read the dataset line-by-line. Get num. of features, F, and 
-            # num. of examples, N
-            
             # Temporary lists to store data as it is being read
             temp_data = []
             temp_test_data = []
+
+            # Read the dataset line-by-line. Get num. of features, F, and 
+            # num. of examples, N
+            with open(filepath) as input_file:
             
-            input_file = open(filepath, "r")
-            
-            for line_num, line in enumerate(input_file):
-                if line_num == 0:
-                    F, N = line.split()
-                    F, N = int(F), int(N)
-                elif line_num == N + 1:
-                    T = int(line)
-                elif line_num > 0 and line_num <= N:
-                    x1, x2, y = line.split()
-                    # Store as ordered pair in temp_data
-                    temp_data += [(float(x1), float(x2), float(y))]
-                elif line_num > N + 1 and line_num <= N + T + 1:
-                    x1, x2 = line.split()
-                    temp_test_data += [(float(x1), float(x2))]
-                    
-            # Close file
-            input_file.close()
+                for line_num, line in enumerate(input_file):
+                    if line_num == 0:
+                        F, N = line.split()
+                        F, N = int(F), int(N)
+                    elif line_num == N + 1:
+                        T = int(line)
+                    elif line_num > 0 and line_num <= N:
+                        x1, x2, y = line.split()
+                        # Store as ordered pair in temp_data
+                        temp_data += [(float(x1), float(x2), float(y))]
+                    elif line_num > N + 1 and line_num <= N + T + 1:
+                        x1, x2 = line.split()
+                        temp_test_data += [(float(x1), float(x2))]
                     
             # Convert temp lists into numpy arrays
             dataset = np.array(temp_data)
