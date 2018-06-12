@@ -3,9 +3,10 @@
 """
 Created on Mon Jun  4 23:15:19 2018
 
-@author: dileepn
+@author: dnackat
 
-Polynomial Regression: Predict office prices
+This script has functions to implement polynomial regression
+
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -34,65 +35,76 @@ def load_data():
         
         2. Data entered manually (space-separated) on the standard input 
         and stores them in X and y. """
-        
-    input_type = input("Choose dataset input type. 1 (file) or 2 (manual entry): ")
     
-    if input_type == "1":
+    prompt_user = True
+    while(prompt_user):
         
-        # Prompt for filepath
-        filepath = input("Enter the complete filepath (/home/user...): ")
+        # Prompt user for dataset input type
+        input_type = input("Choose dataset input type. 1 (file) or 2 (manual entry): ")
+    
+        if input_type == "1":
+            
+            # Prompt for filepath
+            filepath = input("Enter the complete filepath (/home/user...): ")
+            
+            # Read the dataset line-by-line. Get num. of features, F, and 
+            # num. of examples, N
+            
+            # Temporary lists to store data as it is being read
+            temp_data = []
+            temp_test_data = []
+            
+            input_file = open(filepath, "r")
+            
+            for line_num, line in enumerate(input_file):
+                if line_num == 0:
+                    F, N = line.split()
+                    F, N = int(F), int(N)
+                elif line_num == N + 1:
+                    T = int(line)
+                elif line_num > 0 and line_num <= N:
+                    x1, x2, y = line.split()
+                    # Store as ordered pair in temp_data
+                    temp_data += [(float(x1), float(x2), float(y))]
+                elif line_num > N + 1 and line_num <= N + T + 1:
+                    x1, x2 = line.split()
+                    temp_test_data += [(float(x1), float(x2))]
+                    
+            # Close file
+            input_file.close()
+                    
+            # Convert temp lists into numpy arrays
+            dataset = np.array(temp_data)
+            X_pred = np.array(temp_test_data)       
+            
+            # Define X, y, and m
+            X = dataset[:, :F]
+            y = dataset[:, F].reshape(X.shape[0], 1)
+            m = dataset.shape[0]
+            
+            prompt_user = False
+            
+        elif input_type == "2":
+            
+            # First line has number of features and number of training examples
+            F, N = map(int, input().split())
+            
+            # Get the training set (X and y)
+            train = np.array([input().split() for _ in range(N)], float)
+            
+            # Number of test examples
+            T = int(input())
+            X_pred = np.array([input().split() for _ in range(T)], float)
+            
+            # Split the training set into X and y
+            X = train[:,:F]
+            y = train[:,F]
+            m = len(y)
+            
+            prompt_user = False
         
-        # Read the dataset line-by-line. Get num. of features, F, and 
-        # num. of examples, N
-        
-        # Temporary list to store data as it is being read
-        temp_data = []
-        temp_test_data = []
-        
-        input_file = open(filepath, "r")
-        
-        for line_num, line in enumerate(input_file):
-            if line_num == 0:
-                F, N = line.split()
-                F, N = int(F), int(N)
-            elif line_num == N + 1:
-                T = int(line)
-            elif line_num > 0 and line_num <= N:
-                x1, x2, y = line.split()
-                temp_data += [(float(x1), float(x2), float(y))]
-            elif line_num > N + 1 and line_num <= N + T + 1:
-                x1, x2 = line.split()
-                temp_test_data += [(float(x1), float(x2))]
-                
-        # Close file
-        input_file.close()
-                
-        # Convert temp lists into numpy arrays
-        dataset = np.array(temp_data)
-        X_pred = np.array(temp_test_data)       
-        
-        # Define X, y, and m
-        X = dataset[:, :F]
-        y = dataset[:, F].reshape(X.shape[0], 1)
-        
-        m = dataset.shape[0]
-        
-    elif input_type == "2":
-        
-        # First line has number of features and number of training examples
-        F, N = map(int, input().split())
-        
-        # Get the training set (X and y)
-        train = np.array([input().split() for _ in range(N)], float)
-        
-        # Number of test examples
-        T = int(input())
-        X_pred = np.array([input().split() for _ in range(T)], float)
-        
-        # Split the training set into X and y
-        X = train[:,:F]
-        y = train[:,F]
-        m = len(y)
+        else:
+            print("Incorrect input. Please enter 1 or 2.")
     
     return (X, y, m, X_pred)
 

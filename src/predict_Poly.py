@@ -3,9 +3,10 @@
 """
 Created on Tue Jun 12 02:57:51 2018
 
-@author: dileepn
+@author: dnackat
 
-This script predicts office space prices for the given test data
+This sript predicts office space prices based on 2 features using polynomial
+regression.
  
 """
 import numpy as np
