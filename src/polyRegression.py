@@ -35,9 +35,8 @@ def load_data():
         
         2. Data entered manually (space-separated) on the standard input 
         and stores them in X and y. """
-    
-    prompt_user = True
-    while(prompt_user):
+
+    while True:
         
         # Prompt user for dataset input type
         input_type = input("Choose dataset input type. 1 (file) or 2 (manual entry): ")
@@ -78,7 +77,7 @@ def load_data():
             y = dataset[:, F].reshape(X.shape[0], 1)
             m = dataset.shape[0]
             
-            prompt_user = False
+            break
             
         elif input_type == "2":
             
@@ -97,7 +96,7 @@ def load_data():
             y = train[:,F]
             m = len(y)
             
-            prompt_user = False
+            break
         
         else:
             print("Incorrect input. Please enter 1 or 2.")
