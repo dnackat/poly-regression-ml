@@ -11,7 +11,7 @@ This script has functions to implement polynomial regression
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Open the dataset and define X, y, and m
+#%% Open the dataset and define X, y, and m
 def load_data():
     """ This function loads: 
         1. Space-separated text (*.txt) file using numpy
@@ -103,7 +103,7 @@ def load_data():
     
     return (X, y, m, X_pred)
 
-# Feature scaling
+#%% Feature scaling
 def norm_features(X):
     """ This function normalizes features and returns X_norm: (X - mu)/sigma, 
         where mu and sigma are the mean and standard deviation of each column 
@@ -119,7 +119,7 @@ def norm_features(X):
     
     return X_norm
 
-# Polynomial feature mapping
+#%% Polynomial feature mapping
 def poly_features(X, p):
     """ This function takes in X and returns a matrix X_poly
         with each column being a column of X raised to powers ranging from 
@@ -152,7 +152,7 @@ def poly_features(X, p):
     
     return X_poly
 
-# Compute cost and gradient
+#%% Compute cost and gradient
 def compute_cost(X, y, theta, Lambda):
     """ Compute regularized (if Lambda > 0) cost (J) and gradient. """
         
@@ -169,7 +169,7 @@ def compute_cost(X, y, theta, Lambda):
             
     return (J, grad)
 
-# Gradient descent to learn theta
+#%% Gradient descent to learn theta
 def grad_descent(X, y, theta, alpha, Lambda, num_iters):
     """ This function implements Gradient Descent to train the model, and 
         returns the tuned parameter vector, theta. """
@@ -195,7 +195,7 @@ def grad_descent(X, y, theta, alpha, Lambda, num_iters):
     # Return theta and J_hist
     return (theta, J_hist)
 
-# Split dataset into cv, test, and training sets
+#%% Split dataset into cv, test, and training sets
 def train_cv_test_split(X, y, cv_ratio=0.2, test_ratio=0.2):
     """ This function splits the dataset into cross-validation, test, 
         and train sets. Default split is 20%-20%-60%. """
@@ -225,7 +225,7 @@ def train_cv_test_split(X, y, cv_ratio=0.2, test_ratio=0.2):
     # Return split datasets
     return (X_cv, y_cv, X_test, y_test, X_train, y_train)
 
-# Plot learning curve
+#%% Plot learning curve
 def learning_curve(X_train, y_train, X_cv, y_cv, Lambda):
     """ This function plots the learning curve (train and validation errors
         vs. number of examples) to give an idea on bias-variance characteristics. """
@@ -266,7 +266,7 @@ def learning_curve(X_train, y_train, X_cv, y_cv, Lambda):
     # Return error arrays
     return (error_train, error_cv)
 
-# Plot data along with model fit
+#%% Plot data along with model fit
 def plot_data_model(X, X_norm, y, theta):
     """ This function plots the model fit along with the data set (X vs. y). """
     
