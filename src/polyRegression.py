@@ -242,13 +242,13 @@ def learning_curve(X_train, y_train, X_cv, y_cv, Lambda):
         
         # Calculate theta vector for this iteration
         theta_init = np.ones((X_train.shape[1], 1))
-        theta, dummy_var = grad_descent(X_train[:i,:], y_train[:i], \
-                                        theta_init, 0.1, Lambda, 500)
+        theta, _ = grad_descent(X_train[:i+1,:], y_train[:i+1], \
+                                        theta_init, 0.1, Lambda, 3500)
         
         # Calculate errors (set Lambda = 0 for these)
-        error_train[i], dummy_var = compute_cost(X_train[:i,:], y_train[:i], \
+        error_train[i], _ = compute_cost(X_train[:i+1,:], y_train[:i+1], \
                            theta, 0)
-        error_cv[i], dummy_val = compute_cost(X_cv, y_cv, \
+        error_cv[i], _ = compute_cost(X_cv, y_cv, \
                            theta, 0)
         
     # Plot errors
@@ -257,17 +257,18 @@ def learning_curve(X_train, y_train, X_cv, y_cv, Lambda):
     plt.xlabel("Number of training examples")
     plt.ylabel("Error")
     
-    plt.plot(range(m), error_train, 'b-', linewidth=2, label="Train")
-    plt.plot(range(m), error_train, 'r-', linewidth=2, label="Cross Validation")
+    plt.semilogy(range(m), error_train, 'b-', linewidth=2, label="Train")
+    plt.semilogy(range(m), error_cv, 'r-', linewidth=2, label="Cross Validation")
     
     plt.legend()
+    plt.ylim(0.1,1e5)
     plt.show()
     
     # Return error arrays
     return (error_train, error_cv)
 
 #%% Plot data along with model fit
-def plot_data_model(X, X_norm, y, theta):
+def plot_data_model(X_train, X_norm, y, theta):
     """ This function plots the model fit along with the data set (X vs. y). """
     
     plt.figure(figsize=(7,7))
@@ -275,11 +276,11 @@ def plot_data_model(X, X_norm, y, theta):
     plt.xlabel("Feature (X)")
     plt.ylabel("Price per square-foot, y ($)")
     
-    plt.plot(X[:,0], y, 'bx', markersize=5, label="x1")
-    plt.plot(X[:,1], y, 'ro', markersize=5, label="x2")
+    plt.plot(X_train[:,0], y, 'bx', markersize=5, label="x1")
+    plt.plot(X_train[:,1], y, 'ro', markersize=5, label="x2")
     
     # Sort X in order to do a lineplot of model fit
-    [x_p, y_p] = zip(*sorted(zip(X[:,0], X_norm.dot(theta)), \
+    [x_p, y_p] = zip(*sorted(zip(X_train[:,0], X_norm.dot(theta)), \
     key=lambda x_p: x_p[0]))
     
     plt.plot(x_p, y_p, 'k--', linewidth=1, label="Model fit")
