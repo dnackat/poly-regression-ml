@@ -13,8 +13,8 @@ regression.
 import numpy as np
 import matplotlib.pyplot as plt
 
-from polyRegression import load_data, norm_features, poly_features, \
-grad_descent, train_cv_test_split, learning_curve, plot_data_model
+from polyRegression import load_data, norm_features, poly_features, compute_cost, \
+grad_descent, train_cv_test_split, learning_curve, validationCurve, plot_data_model
 
 # Model training and prediction   
 
@@ -57,8 +57,21 @@ plt.show()
 plot_data_model(X_train, X_norm_train, y_train, theta)
 
 #%% Plot learning curve
-error_train, error_val = learning_curve(X_norm_train, y_train, \
+error_train, error_cv = learning_curve(X_norm_train, y_train, \
                                         X_norm_cv, y_cv, Lambda)
+
+#%% Plot validation curve
+error_train_val, error_cv_val = validationCurve(X_norm_train, y_train, X_norm_cv, y_cv)
+
+#%% Compute test set error
+Lambda = 4
+theta_test, _ = grad_descent(X_norm_train, y_train, theta_init, alpha, Lambda, num_iters)
+
+# Calculate test set error
+test_error, _ = compute_cost(X_norm_test, y_test, theta_test, 0)
+print("--------------------------")
+print("Test set error = {:.2f}".format(test_error))
+print("--------------------------")
 
 #%% Predictions
 X_pred_poly = poly_features(X_pred, 3)

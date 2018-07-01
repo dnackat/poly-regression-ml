@@ -103,6 +103,7 @@ def load_data():
     
     return (X, y, m, X_pred)
 
+
 #%% Feature scaling
 def norm_features(X):
     """ This function normalizes features and returns X_norm: (X - mu)/sigma, 
@@ -118,6 +119,7 @@ def norm_features(X):
     X_norm = np.concatenate((np.ones((X_norm.shape[0], 1)), X_norm), axis=1)
     
     return X_norm
+
 
 #%% Polynomial feature mapping
 def poly_features(X, p):
@@ -152,6 +154,7 @@ def poly_features(X, p):
     
     return X_poly
 
+
 #%% Compute cost and gradient
 def compute_cost(X, y, theta, Lambda):
     """ Compute regularized (if Lambda > 0) cost (J) and gradient. """
@@ -168,6 +171,7 @@ def compute_cost(X, y, theta, Lambda):
             (Lambda/m) * np.concatenate((np.zeros((1,1)), theta[1:]), axis=0)
             
     return (J, grad)
+
 
 #%% Gradient descent to learn theta
 def grad_descent(X, y, theta, alpha, Lambda, num_iters):
@@ -194,6 +198,7 @@ def grad_descent(X, y, theta, alpha, Lambda, num_iters):
         
     # Return theta and J_hist
     return (theta, J_hist)
+
 
 #%% Split dataset into cv, test, and training sets
 def train_cv_test_split(X, y, cv_ratio=0.2, test_ratio=0.2):
@@ -224,6 +229,7 @@ def train_cv_test_split(X, y, cv_ratio=0.2, test_ratio=0.2):
     
     # Return split datasets
     return (X_cv, y_cv, X_test, y_test, X_train, y_train)
+
 
 #%% Plot learning curve
 def learning_curve(X_train, y_train, X_cv, y_cv, Lambda):
@@ -266,6 +272,45 @@ def learning_curve(X_train, y_train, X_cv, y_cv, Lambda):
     
     # Return error arrays
     return (error_train, error_cv)
+
+#%% Validation curve
+def validationCurve(X, y, X_cv, y_cv):
+    """ This function plots the validation curve (training and validation 
+        errors vs. lambda). """
+    
+    # Lambda values to try in multiples of 3
+    lambda_vec = np.array([0, 0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1, 3, 10]).reshape(10, 1)
+    
+    # Arrays to hold training and validation errors
+    error_train = np.zeros(lambda_vec.shape)
+    error_cv = np.zeros(lambda_vec.shape)
+    
+    # Iterate through lambda values and populate error arrays
+    for i in range(len(lambda_vec)):
+        # Get theta for this lambda value
+        theta_init = np.random.randint(2, size=(X.shape[1], 1))
+        theta, _ = grad_descent(X, y, theta_init, 0.125, lambda_vec[i], 3500)
+        
+        # Compute cost functions using a lambda value of 0
+        error_train[i], _ = compute_cost(X, y, theta, 0)
+        error_cv[i], _ = compute_cost(X_cv, y_cv, theta, 0)
+        
+    # Plot errors
+    plt.figure(figsize=(7,7))
+    plt.title("Validation curve for linear/poly regression")
+    plt.xlabel("lambda")
+    plt.ylabel("Error")
+    
+    plt.plot(range(len(lambda_vec)), error_train, 'b-', linewidth=2, label="Train")
+    plt.plot(range(len(lambda_vec)), error_cv, 'r-', linewidth=2, label="Cross Validation")
+    
+    plt.legend()
+    #plt.ylim(0.1,1e5)
+    plt.show()
+    
+    # Return error arrays
+    return (error_train, error_cv)
+    
 
 #%% Plot data along with model fit
 def plot_data_model(X_train, X_norm, y, theta):
