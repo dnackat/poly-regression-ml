@@ -19,7 +19,7 @@ grad_descent, train_cv_test_split, learning_curve, validationCurve, plot_data_mo
 # Model training and prediction   
 
 #%% Define constants and initial theta vector
-Lambda = 0
+Lambda = 3
 alpha = 0.125
 num_iters = 3500
 
@@ -30,9 +30,10 @@ X, y, m, X_pred = load_data()
 X_cv, y_cv, X_test, y_test, X_train, y_train = train_cv_test_split(X, y)
 
 #%% Get polynomial features
-X_poly_train = poly_features(X_train, 3)
-X_poly_cv = poly_features(X_cv, 3)
-X_poly_test = poly_features(X_test, 3)
+n_poly = 3
+X_poly_train = poly_features(X_train, n_poly)
+X_poly_cv = poly_features(X_cv, n_poly)
+X_poly_test = poly_features(X_test, n_poly)
 
 #%% Normalize X to get mu = 0 and sigma = 1
 X_norm_train = norm_features(X_poly_train)
@@ -64,7 +65,7 @@ error_train, error_cv = learning_curve(X_norm_train, y_train, \
 error_train_val, error_cv_val = validationCurve(X_norm_train, y_train, X_norm_cv, y_cv)
 
 #%% Compute test set error
-Lambda = 4
+Lambda = 3
 theta_test, _ = grad_descent(X_norm_train, y_train, theta_init, alpha, Lambda, num_iters)
 
 # Calculate test set error
@@ -74,11 +75,12 @@ print("Test set error = {:.2f}".format(test_error))
 print("--------------------------")
 
 #%% Predictions
-X_pred_poly = poly_features(X_pred, 3)
+X_pred_poly = poly_features(X_pred, n_poly)
 X_pred_norm = norm_features(X_pred_poly) 
 predictions = X_pred_norm.dot(theta)
 
 #%% Print predictions
+print("--------------------------")
 print("\nPredicted price(s) in $")
 print("--------------------------")
 for i in range(predictions.shape[0]):
