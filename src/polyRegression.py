@@ -74,7 +74,9 @@ def load_data():
             
             # Define X, y, and m
             X = dataset[:, :F]
-            y = dataset[:, F].reshape(X.shape[0], 1)
+            y = dataset[:, F]
+            # Convert y to rank 2 array
+            y = y[:, np.newaxis]
             m = dataset.shape[0]
             
             break
