@@ -41,7 +41,7 @@ X_norm_cv = norm_features(X_poly_cv)
 X_norm_test = norm_features(X_poly_test)
 
 #%% Learn theta using GD
-theta_init = np.random.randint(2, size=(X_norm_train.shape[1], 1))
+theta_init = np.random.randint(5, size=(X_norm_train.shape[1], 1))
 theta, J_hist = grad_descent(X_norm_train, y_train, theta_init, alpha, Lambda, num_iters)
 
 #%% J_history plot

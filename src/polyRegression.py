@@ -116,7 +116,7 @@ def norm_features(X):
     X_norm = (X - mu)/sigma
     
     # Add intercept term to X 
-    X_norm = np.concatenate((np.ones((X_norm.shape[0], 1)), X_norm), axis=1)
+    X_norm = np.hstack((np.ones((X_norm.shape[0], 1)), X_norm))
     
     return X_norm
 
